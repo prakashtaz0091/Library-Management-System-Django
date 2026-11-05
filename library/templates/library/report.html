@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>{{ report.title }}</h3>
+  <div class="d-flex gap-2">
+    <a href="{% url 'report_index' %}" class="btn btn-outline-secondary">All reports</a>
+    <a href="?{{ export_query }}" class="btn btn-success">Export CSV</a>
+  </div>
+</div>
+
+{% if report.dates %}
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">
+    <label class="form-label small mb-0">From</label>
+    <input type="date" name="start" value="{{ start }}" class="form-control">
+  </div>
+  <div class="col-auto">
+    <label class="form-label small mb-0">To</label>
+    <input type="date" name="end" value="{{ end }}" class="form-control">
+  </div>
+  <div class="col-auto d-flex align-items-end gap-2">
+    <button class="btn btn-secondary">Apply</button>
+    <a href="{% url 'report_view' name %}" class="btn btn-outline-secondary">Reset</a>
+  </div>
+</form>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  {% for label, value in data.summary %}
+    <div class="col-6 col-md-3">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="fs-4 fw-semibold">{{ value }}</div>
+          <div class="text-muted small">{{ label }}</div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>{% for h in data.headers %}<th>{{ h }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in data.rows %}
+        <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+      {% empty %}
+        <tr><td colspan="{{ data.headers|length }}" class="text-center text-muted">No data.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

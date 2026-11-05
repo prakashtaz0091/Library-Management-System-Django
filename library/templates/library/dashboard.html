@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h3>Dashboard</h3>
+<p class="text-muted">
+  Logged in as <strong>{{ user.username }}</strong> —
+  {% if is_librarian %}Librarian{% elif is_member %}Member{% elif is_donor %}Donor{% else %}No role assigned{% endif %}
+</p>
+
+{% if is_librarian %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100"><div class="card-body">
+        <div class="fs-3 fw-semibold">{{ stats.books_out }}</div>
+        <div class="text-muted small">Books out</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100 {% if stats.overdue %}border-danger{% endif %}"><div class="card-body">
+        <div class="fs-3 fw-semibold {% if stats.overdue %}text-danger{% endif %}">{{ stats.overdue }}</div>
+        <div class="text-muted small">Overdue</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100 {% if stats.pending_donations %}border-warning{% endif %}"><div class="card-body">
+        <div class="fs-3 fw-semibold">{{ stats.pending_donations }}</div>
+        <div class="text-muted small">Pending donations</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100"><div class="card-body">
+        <div class="fs-3 fw-semibold">{{ stats.unpaid_fines }}</div>
+        <div class="text-muted small">Unpaid fines</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100"><div class="card-body">
+        <div class="fs-3 fw-semibold">{{ stats.titles }}</div>
+        <div class="text-muted small">Book titles</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card text-center h-100"><div class="card-body">
+        <div class="fs-3 fw-semibold">{{ stats.active_members }}</div>
+        <div class="text-muted small">Active members</div>
+      </div></div>
+    </div>
+  </div>
+
+  <h5>Quick actions</h5>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'issue_create' %}" class="btn btn-primary">Issue a book</a>
+    <a href="{% url 'issue_list' %}?status=overdue" class="btn btn-outline-danger">View overdue</a>
+    <a href="{% url 'donation_list' %}" class="btn btn-outline-warning">Review donations</a>
+    <a href="{% url 'book_create' %}" class="btn btn-outline-primary">Add book</a>
+    <a href="{% url 'member_create' %}" class="btn btn-outline-primary">Add member</a>
+    <a href="{% url 'report_index' %}" class="btn btn-outline-secondary">Reports</a>
+  </div>
+
+{% elif is_member %}
+
+  {% if not member %}
+    <div class="alert alert-warning">Your account isn't linked to a member record. Ask a librarian.</div>
+  {% else %}
+    {% if unpaid_fines %}
+      <div class="alert alert-warning">You have unpaid fines totalling <strong>{{ unpaid_fines }}</strong>. Please pay at the library desk.</div>
+    {% endif %}
+
+    <h5>Books you currently have</h5>
+    <table class="table table-striped align-middle">
+      <thead><tr><th>Book</th><th>Due</th><th>Fine so far</th></tr></thead>
+      <tbody>
+        {% for i in current_loans %}
+          <tr>
+            <td>{{ i.book.title }}</td>
+            <td>
+              {{ i.due_date }}
+              {% if i.due_date < today %}<span class="badge bg-danger">Overdue</span>{% endif %}
+            </td>
+            <td>{{ i.calculate_fine }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3" class="text-center text-muted">You have no books out.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'my_loans' %}" class="btn btn-outline-primary">Full loan history</a>
+    <a href="{% url 'book_list' %}" class="btn btn-outline-secondary">Browse books</a>
+  {% endif %}
+
+{% elif is_donor %}
+
+  <div class="alert alert-info">
+    You have <strong>{{ pending_count|default:0 }}</strong> donation{{ pending_count|default:0|pluralize }} awaiting review.
+  </div>
+
+  <h5>Latest donations</h5>
+  <table class="table table-striped align-middle">
+    <thead><tr><th>Title</th><th>Qty</th><th>Submitted</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for d in recent_donations %}
+        <tr>
+          <td>{{ d.title }}</td>
+          <td>{{ d.quantity }}</td>
+          <td>{{ d.submitted_on|date:"Y-m-d" }}</td>
+          <td>
+            {% if d.status == "approved" %}<span class="badge bg-success">Approved</span>
+            {% elif d.status == "rejected" %}<span class="badge bg-danger">Rejected</span>
+            {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-center text-muted">No donations yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'donation_create' %}" class="btn btn-success">Donate a book</a>
+  <a href="{% url 'my_donations' %}" class="btn btn-outline-secondary">Full history</a>
+
+{% else %}
+  <div class="alert alert-warning">Your account has no role yet. Ask a librarian.</div>
+{% endif %}
+{% endblock %}  

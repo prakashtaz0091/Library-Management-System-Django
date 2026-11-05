@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Donation Requests{% endblock %}
+{% block content %}
+<h3 class="mb-3">Donation Requests</h3>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <select name="status" class="form-select" onchange="this.form.submit()">
+      <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status == "approved" %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if status == "rejected" %}selected{% endif %}>Rejected</option>
+      <option value="all" {% if status == "all" %}selected{% endif %}>All</option>
+    </select>
+  </div>
+  <noscript><div class="col-auto"><button class="btn btn-secondary">Filter</button></div></noscript>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Book</th><th>ISBN</th><th>Category</th><th>Condition</th><th>Qty</th>
+      <th>Donor</th><th>Submitted</th><th>Status</th><th style="min-width:260px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in page %}
+      <tr>
+        <td>{{ d.title }}<br><small class="text-muted">{{ d.author }}</small></td>
+        <td>{{ d.isbn }}</td>
+        <td>{{ d.category }}</td>
+        <td>{{ d.get_condition_display }}</td>
+        <td>{{ d.quantity }}</td>
+        <td>{{ d.donor.name }}</td>
+        <td>{{ d.submitted_on|date:"Y-m-d" }}</td>
+        <td>
+          {% if d.status == "approved" %}<span class="badge bg-success">Approved</span>
+          {% elif d.status == "rejected" %}<span class="badge bg-danger">Rejected</span>
+          {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+          {% if d.reviewed_by %}<br><small class="text-muted">by {{ d.reviewed_by.username }}</small>{% endif %}
+          {% if d.remarks %}<br><small class="text-muted">{{ d.remarks }}</small>{% endif %}
+        </td>
+        <td>
+          {% if d.status == "pending" %}
+            <form method="post" action="{% url 'donation_approve' d.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-success">Approve</button>
+            </form>
+            <form method="post" action="{% url 'donation_reject' d.pk %}" class="d-inline-flex gap-1 mt-1">
+              {% csrf_token %}
+              <input type="text" name="remarks" class="form-control form-control-sm"
+                     placeholder="Reason (optional)">
+              <button class="btn btn-sm btn-outline-danger">Reject</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="9" class="text-center text-muted">No donation requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if page.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

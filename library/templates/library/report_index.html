@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h3 class="mb-3">Reports</h3>
+<div class="row g-3">
+  {% for key, r in reports.items %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ r.title }}</h5>
+          <p class="card-text text-muted">{{ r.description }}</p>
+          <a href="{% url 'report_view' key %}" class="btn btn-primary mt-auto">Open</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Books</h3>
+  {% if is_librarian %}
+    <a href="{% url 'book_create' %}" class="btn btn-primary">+ Add Book</a>
+  {% endif %}
+</div>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <input type="text" name="q" value="{{ q }}" class="form-control"
+           placeholder="Search title, author or ISBN">
+  </div>
+  <div class="col-md-3">
+    <select name="category" class="form-select">
+      <option value="">All categories</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:"s" %}selected{% endif %}>
+          {{ c.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3 d-flex align-items-center">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="available" value="1"
+             id="avail" {% if available_only %}checked{% endif %}>
+      <label class="form-check-label" for="avail">Available only</label>
+    </div>
+  </div>
+  <div class="col-md-2 d-flex gap-2">
+    <button class="btn btn-secondary">Search</button>
+    <a href="{% url 'book_list' %}" class="btn btn-outline-secondary">Reset</a>
+  </div>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Title</th><th>Author</th><th>ISBN</th><th>Category</th>
+      <th>Available</th>{% if is_librarian %}<th></th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in page %}
+      <tr>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.isbn }}</td>
+        <td>{{ book.category }}</td>
+        <td>{{ book.available_copies }} / {{ book.total_copies }}</td>
+        {% if is_librarian %}
+          <td class="text-end">
+            <a href="{% url 'book_update' book.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <a href="{% url 'book_delete' book.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          </td>
+        {% endif %}
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="text-center text-muted">No books found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if page.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

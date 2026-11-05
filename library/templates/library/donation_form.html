@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Donate a Book{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h3 class="mb-3">Donate a Book</h3>
+    <p class="text-muted">Submit the book's details. A librarian will review your request.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-success">Submit Request</button>
+      <a href="{% url 'my_donations' %}" class="btn btn-link">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

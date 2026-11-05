@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}My Loans{% endblock %}
+{% block content %}
+<h3>My Loans</h3>
+
+{% if not member %}
+  <div class="alert alert-warning">Your account isn't linked to a member record.</div>
+{% else %}
+<table class="table table-striped align-middle">
+  <thead>
+    <tr><th>Book</th><th>Issued</th><th>Due</th><th>Returned</th><th>Fine</th></tr>
+  </thead>
+  <tbody>
+    {% for i in issues %}
+      <tr>
+        <td>{{ i.book.title }}</td>
+        <td>{{ i.issue_date }}</td>
+        <td>
+          {{ i.due_date }}
+          {% if not i.is_returned and i.due_date < today %}<span class="badge bg-danger">Overdue</span>{% endif %}
+        </td>
+        <td>{% if i.is_returned %}{{ i.return_date }}{% else %}—{% endif %}</td>
+        <td>
+          {% if i.is_returned %}
+            {{ i.fine_amount }}{% if i.fine_amount > 0 and not i.fine_paid %} (unpaid){% endif %}
+          {% else %}
+            {{ i.calculate_fine }}
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="text-center text-muted">You haven't borrowed any books yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

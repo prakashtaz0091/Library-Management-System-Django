@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Issues{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Issued Books</h3>
+  <a href="{% url 'issue_create' %}" class="btn btn-primary">+ Issue Book</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5">
+    <input type="text" name="q" value="{{ q }}" class="form-control"
+           placeholder="Search book title or member name">
+  </div>
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">All</option>
+      <option value="active" {% if status == "active" %}selected{% endif %}>Currently issued</option>
+      <option value="overdue" {% if status == "overdue" %}selected{% endif %}>Overdue</option>
+      <option value="returned" {% if status == "returned" %}selected{% endif %}>Returned</option>
+      <option value="unpaid" {% if status == "unpaid" %}selected{% endif %}>Unpaid fines</option>
+    </select>
+  </div>
+  <div class="col-md-4 d-flex gap-2">
+    <button class="btn btn-secondary">Filter</button>
+    <a href="{% url 'issue_list' %}" class="btn btn-outline-secondary">Reset</a>
+  </div>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Book</th><th>Member</th><th>Issued</th><th>Due</th>
+      <th>Returned</th><th>Fine</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in page %}
+      <tr>
+        <td>{{ i.book.title }}</td>
+        <td>{{ i.member.name }}</td>
+        <td>{{ i.issue_date }}</td>
+        <td>
+          {{ i.due_date }}
+          {% if not i.is_returned and i.due_date < today %}
+            <span class="badge bg-danger">Overdue</span>
+          {% endif %}
+        </td>
+        <td>{% if i.is_returned %}{{ i.return_date }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+        <td>
+          {% if i.is_returned %}
+            {% if i.fine_amount > 0 %}
+              {{ i.fine_amount }}
+              {% if i.fine_paid %}<span class="badge bg-success">Paid</span>
+              {% else %}<span class="badge bg-warning text-dark">Unpaid</span>{% endif %}
+            {% else %}0{% endif %}
+          {% else %}
+            {% with f=i.calculate_fine %}
+              {% if f > 0 %}<span class="text-danger">{{ f }} (accruing)</span>{% else %}0{% endif %}
+            {% endwith %}
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if not i.is_returned %}
+            <form method="post" action="{% url 'return_book' i.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-primary">Return</button>
+            </form>
+          {% elif i.fine_amount > 0 and not i.fine_paid %}
+            <form method="post" action="{% url 'pay_fine' i.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-success">Mark fine paid</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7" class="text-center text-muted">No records found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if page.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
