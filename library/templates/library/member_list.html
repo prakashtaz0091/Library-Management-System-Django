@@ -1,71 +1,322 @@
 {% extends "base.html" %}
-{% block title %}Members{% endblock %}
+{% block title %}Members | Library{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h3>Members</h3>
-  <a href="{% url 'member_create' %}" class="btn btn-primary">+ Add Member</a>
+
+<style>
+    .filter-control {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1f2937;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filter-control::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+    }
+
+    .filter-control:hover {
+        border-color: #d1d5db;
+    }
+
+    .filter-control:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    }
+</style>
+
+<!-- ===================== MEMBERS LIST ===================== -->
+
+<div class="space-y-8">
+
+    <!-- Header -->
+    <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+
+        <div>
+            <div class="mb-2 flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
+                    Community
+                </span>
+            </div>
+
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Members<span class="text-indigo-500">.</span>
+            </h1>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Manage library members and their account access.
+            </p>
+        </div>
+
+        <a href="{% url 'member_create' %}"
+           class="inline-flex w-fit items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700">
+            Add a member
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14"/>
+                <path d="M5 12h14"/>
+            </svg>
+        </a>
+
+    </section>
+
+
+    <!-- Table Card -->
+    <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+
+        <!-- Card header + filters -->
+        <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">All members</h2>
+                    <p class="text-xs text-gray-500">Search by name, email or phone, or filter by status.</p>
+                </div>
+            </div>
+
+            <form method="get" class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-12">
+
+                <!-- Search -->
+                <div class="relative md:col-span-5">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m20 20-3.5-3.5"/>
+                    </svg>
+
+                    <input type="text" name="q" value="{{ q }}"
+                           placeholder="Search name, email or phone"
+                           class="filter-control !pl-10">
+                </div>
+
+                <!-- Status -->
+                <div class="md:col-span-3">
+                    <select name="status" class="filter-control">
+                        <option value="">All statuses</option>
+                        <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2 md:col-span-4">
+                    <button type="submit"
+                            class="inline-flex flex-1 items-center justify-center rounded-xl bg-gray-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-gray-800">
+                        Search
+                    </button>
+
+                    <a href="{% url 'member_list' %}"
+                       class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-50">
+                        Reset
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[820px] text-left">
+
+                <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/70">
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Name</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Email</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Phone</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Login</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</th>
+                        <th class="px-6 py-3.5"></th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+
+                    {% for m in page %}
+
+                        <tr class="transition hover:bg-gray-50/70">
+
+                            <!-- Name -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold uppercase text-violet-700">
+                                        {{ m.name|first }}
+                                    </div>
+
+                                    <span class="text-sm font-semibold text-gray-800">
+                                        {{ m.name }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td class="px-6 py-4 text-sm font-medium text-gray-600">
+                                {{ m.email }}
+                            </td>
+
+                            <!-- Phone -->
+                            <td class="px-6 py-4 text-sm font-medium text-gray-500">
+                                {{ m.phone }}
+                            </td>
+
+                            <!-- Login -->
+                            <td class="px-6 py-4">
+                                {% if m.user %}
+                                    <span class="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                                        {{ m.user.username }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-sm font-medium text-gray-400">No login</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-6 py-4">
+                                {% if m.is_active %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1.5 text-[11px] font-bold text-gray-600">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-end gap-2">
+
+                                    <a href="{% url 'member_update' m.pk %}"
+                                       class="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                        Edit
+                                    </a>
+
+                                    <form method="post" action="{% url 'member_toggle_active' m.pk %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 transition {% if m.is_active %}hover:border-red-200 hover:bg-red-50 hover:text-red-700{% else %}hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700{% endif %}">
+                                            {% if m.is_active %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="6" class="px-6 py-16 text-center">
+
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </div>
+
+                                <h3 class="mt-4 text-sm font-bold text-gray-700">
+                                    No members found
+                                </h3>
+
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Try a different search or reset the filters.
+                                </p>
+
+                                <a href="{% url 'member_create' %}"
+                                   class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800">
+                                    Add a member
+                                    <span>→</span>
+                                </a>
+
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Pagination -->
+        {% if page.has_other_pages %}
+
+            <nav class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                 aria-label="Pagination">
+
+                <p class="text-xs font-medium text-gray-500">
+                    Page <span class="font-bold text-gray-800">{{ page.number }}</span>
+                    of <span class="font-bold text-gray-800">{{ page.paginator.num_pages }}</span>
+                </p>
+
+                <div class="flex gap-2">
+
+                    {% if page.has_previous %}
+                        <a href="?{{ querystring }}&page={{ page.previous_page_number }}"
+                           class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-50">
+                            <span>←</span>
+                            Previous
+                        </a>
+                    {% else %}
+                        <span class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2 text-xs font-bold text-gray-300">
+                            <span>←</span>
+                            Previous
+                        </span>
+                    {% endif %}
+
+                    {% if page.has_next %}
+                        <a href="?{{ querystring }}&page={{ page.next_page_number }}"
+                           class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700">
+                            Next
+                            <span>→</span>
+                        </a>
+                    {% else %}
+                        <span class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2 text-xs font-bold text-gray-300">
+                            Next
+                            <span>→</span>
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            </nav>
+
+        {% endif %}
+
+    </section>
+
 </div>
 
-<form method="get" class="row g-2 mb-3">
-  <div class="col-md-5">
-    <input type="text" name="q" value="{{ q }}" class="form-control"
-           placeholder="Search name, email or phone">
-  </div>
-  <div class="col-md-3">
-    <select name="status" class="form-select">
-      <option value="">All statuses</option>
-      <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
-      <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
-    </select>
-  </div>
-  <div class="col-md-4 d-flex gap-2">
-    <button class="btn btn-secondary">Search</button>
-    <a href="{% url 'member_list' %}" class="btn btn-outline-secondary">Reset</a>
-  </div>
-</form>
-
-<table class="table table-striped align-middle">
-  <thead>
-    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Login</th><th>Status</th><th></th></tr>
-  </thead>
-  <tbody>
-    {% for m in page %}
-      <tr>
-        <td>{{ m.name }}</td>
-        <td>{{ m.email }}</td>
-        <td>{{ m.phone }}</td>
-        <td>{% if m.user %}{{ m.user.username }}{% else %}<span class="text-muted">none</span>{% endif %}</td>
-        <td>
-          {% if m.is_active %}<span class="badge bg-success">Active</span>
-          {% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
-        </td>
-        <td class="text-end">
-          <a href="{% url 'member_update' m.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-          <form method="post" action="{% url 'member_toggle_active' m.pk %}" class="d-inline">
-            {% csrf_token %}
-            <button class="btn btn-sm btn-outline-{% if m.is_active %}danger{% else %}success{% endif %}">
-              {% if m.is_active %}Deactivate{% else %}Activate{% endif %}
-            </button>
-          </form>
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="6" class="text-center text-muted">No members found.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-{% if page.has_other_pages %}
-<nav>
-  <ul class="pagination">
-    {% if page.has_previous %}
-      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">Previous</a></li>
-    {% endif %}
-    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
-    {% if page.has_next %}
-      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">Next</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
 {% endblock %}

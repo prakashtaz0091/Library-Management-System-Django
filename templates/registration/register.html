@@ -1,24 +1,173 @@
 {% extends "base.html" %}
-{% block title %}Donor Registration{% endblock %}
+{% block title %}Donor Registration | Library{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <h3 class="mb-3">Donor Registration</h3>
-    <form method="post">
-      {% csrf_token %}
-      {% for field in form %}
-        <div class="mb-3">
-          <label class="form-label">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
-          {% for error in field.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
+<style>
+    .reg-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    .reg-field select,
+    .reg-field textarea {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #111827;
+        outline: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .reg-field input::placeholder,
+    .reg-field textarea::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+    }
+    .reg-field input:hover,
+    .reg-field select:hover,
+    .reg-field textarea:hover {
+        border-color: #d1d5db;
+    }
+    .reg-field input:focus,
+    .reg-field select:focus,
+    .reg-field textarea:focus {
+        background-color: #ffffff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    }
+    .reg-field.has-error input,
+    .reg-field.has-error select,
+    .reg-field.has-error textarea {
+        border-color: #fda4af;
+        background-color: #fff1f2;
+    }
+    .reg-field.has-error input:focus,
+    .reg-field.has-error select:focus,
+    .reg-field.has-error textarea:focus {
+        border-color: #f43f5e;
+        box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.12);
+    }
+    .reg-field ul {
+        margin-top: 0.4rem;
+        padding-left: 1.1rem;
+        list-style-type: disc;
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+</style>
+
+<div class="min-h-[75vh] flex items-center justify-center py-10 px-4">
+    <div class="w-full max-w-md">
+
+        <!-- Registration Card -->
+        <div class="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
+
+            <!-- Top Accent -->
+            <div class="h-1.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500"></div>
+
+            <div class="p-8 sm:p-10">
+
+                <!-- Icon -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center ring-8 ring-indigo-50/50">
+                        <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                                  d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Heading -->
+                <div class="text-center mb-8">
+                    <p class="text-sm font-semibold text-indigo-600 mb-2">Join the community</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                        Create a donor account
+                    </h1>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Register to submit book donations for library review.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Non-field Error Messages -->
+                    {% if form.non_field_errors %}
+                        <div class="flex items-start gap-3 p-4 rounded-xl bg-rose-50 border border-rose-100">
+                            <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 9v4m0 4h.01M10.3 3.9 2.8 17a2 2 0 0 0 1.74 3h14.92a2 2 0 0 0 1.74-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+                            </svg>
+                            <div class="text-sm text-rose-700">
+                                {{ form.non_field_errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="reg-field{% if field.errors %} has-error{% endif %}">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                {{ field.label }}{% if field.field.required %}<span class="text-indigo-500"> *</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="mt-1.5 text-xs text-gray-500">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500"></span>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <!-- Submit -->
+                    <button type="submit"
+                            class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl
+                                   bg-indigo-600 text-white text-sm font-semibold
+                                   hover:bg-indigo-700 active:scale-[0.99]
+                                   shadow-sm shadow-indigo-200 transition-all duration-200">
+                        Register
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 12h14m-7-7 7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="relative my-7">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-100"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="px-3 bg-white text-xs text-gray-400">
+                            Already have an account?
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Back to Login -->
+                <div class="text-center">
+                    <a href="{% url 'login' %}"
+                       class="inline-flex items-center justify-center gap-1.5 text-sm font-semibold
+                              text-indigo-600 hover:text-indigo-700 transition">
+                        Back to login
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 17 17 7M7 7h10v10"/>
+                        </svg>
+                    </a>
+                </div>
+
+            </div>
         </div>
-      {% endfor %}
-      <button class="btn btn-success">Register</button>
-      <a href="{% url 'login' %}" class="btn btn-link">Back to login</a>
-    </form>
-  </div>
+
+        <!-- Footer Note -->
+        <p class="text-center text-xs text-gray-400 mt-6">
+            Your community library · Read, learn, grow.
+        </p>
+
+    </div>
 </div>
 {% endblock %}

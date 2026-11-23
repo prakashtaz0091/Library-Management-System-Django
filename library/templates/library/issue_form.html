@@ -1,27 +1,201 @@
 {% extends "base.html" %}
-{% block title %}Issue Book{% endblock %}
+{% block title %}Issue Book | Library{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <h3 class="mb-3">Issue Book</h3>
-    <form method="post">
-      {% csrf_token %}
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-      {% endif %}
-      {% for field in form %}
-        <div class="mb-3">
-          <label class="form-label">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-          {% for error in field.errors %}
-            <div class="text-danger small">{{ error }}</div>
-          {% endfor %}
+
+<style>
+    /* Styles Django's default widgets (input, select, textarea) without touching forms.py */
+    .form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1f2937;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-field input::placeholder,
+    .form-field textarea::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+    }
+
+    .form-field input:hover,
+    .form-field select:hover,
+    .form-field textarea:hover {
+        border-color: #d1d5db;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    }
+
+    .form-field.has-error input,
+    .form-field.has-error select,
+    .form-field.has-error textarea {
+        border-color: #fca5a5;
+        background-color: rgba(254, 242, 242, 0.4);
+    }
+
+    .form-field.has-error input:focus,
+    .form-field.has-error select:focus,
+    .form-field.has-error textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+    }
+</style>
+
+<!-- ===================== ISSUE BOOK ===================== -->
+
+<div class="mx-auto max-w-2xl space-y-8">
+
+    <!-- Header -->
+    <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+
+        <div>
+            <div class="mb-2 flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
+                    Circulation
+                </span>
+            </div>
+
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Issue a book<span class="text-indigo-500">.</span>
+            </h1>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Create a new loan by choosing a member and a book.
+            </p>
         </div>
-      {% endfor %}
-      <button class="btn btn-primary">Issue</button>
-      <a href="{% url 'issue_list' %}" class="btn btn-link">Cancel</a>
-    </form>
-  </div>
+
+        <a href="{% url 'issue_list' %}"
+           class="inline-flex w-fit items-center gap-1.5 text-xs font-bold text-gray-600 transition hover:text-indigo-600">
+            <span>←</span>
+            Back to issues
+        </a>
+
+    </section>
+
+
+    <!-- Form Card -->
+    <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+
+        <!-- Card header -->
+        <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">Loan details</h2>
+                    <p class="text-xs text-gray-500">All fields are needed to record the loan.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="space-y-5 p-5 sm:p-6">
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="message-animate flex gap-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4"/>
+                                <path d="M12 16h.01"/>
+                            </svg>
+                        </div>
+
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-red-900">This loan can't be issued</h3>
+                            <div class="mt-1 space-y-1 text-sm text-red-800">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                <!-- Fields -->
+                {% for field in form %}
+
+                    <div class="form-field{% if field.errors %} has-error{% endif %}">
+
+                        <label for="{{ field.id_for_label }}"
+                               class="mb-1.5 block text-xs font-bold text-gray-700">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-indigo-500">*</span>{% endif %}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <p class="mt-1.5 text-xs text-gray-500">{{ field.help_text }}</p>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600">
+                                <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- Card footer / actions -->
+            <div class="flex flex-col-reverse gap-2 border-t border-gray-100 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
+
+                <a href="{% url 'issue_list' %}"
+                   class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-50">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700">
+                    Issue book
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
 </div>
+
 {% endblock %}

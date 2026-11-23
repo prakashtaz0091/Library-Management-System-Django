@@ -1,11 +1,69 @@
 {% extends "base.html" %}
-{% block title %}Delete Book{% endblock %}
+{% block title %}Delete Book | Library{% endblock %}
 {% block content %}
-<h3>Delete book?</h3>
-<p>Are you sure you want to delete <strong>{{ book.title }}</strong>?</p>
-<form method="post">
-  {% csrf_token %}
-  <button class="btn btn-danger">Yes, delete</button>
-  <a href="{% url 'book_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="mx-auto max-w-lg space-y-8">
+    <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="min-w-0">
+            <div class="mb-2 flex items-center gap-2">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-sky-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.16em] text-sky-600">Collection</span>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Delete book<span class="text-indigo-500">.</span>
+            </h1>
+            <p class="mt-2 text-sm text-gray-500">Review this confirmation carefully before removing the book.</p>
+        </div>
+        <a href="{% url 'book_list' %}" class="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-gray-600 transition hover:text-indigo-600">
+            <span aria-hidden="true">←</span> Back to books
+        </a>
+    </section>
+
+    <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-gray-900">Confirm deletion</h2>
+                    <p class="text-xs text-gray-500">This action cannot be undone.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 sm:p-6">
+            <div class="flex gap-4 rounded-2xl border border-red-200 bg-red-50 p-5">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="font-bold text-red-900">Delete {{ book.title }}?</h3>
+                    <p class="mt-1 text-sm text-red-800">
+                        Are you sure you want to delete <strong class="font-bold">{{ book.title }}</strong>? This will permanently remove it from the catalog.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex flex-col-reverse gap-2 border-t border-gray-100 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
+                <a href="{% url 'book_list' %}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-red-600/20 transition hover:bg-red-700">
+                    Yes, delete
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
 {% endblock %}

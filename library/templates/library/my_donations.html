@@ -1,38 +1,127 @@
 {% extends "base.html" %}
-{% block title %}My Donations{% endblock %}
+{% block title %}My Donations | Library{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h3>My Donation History</h3>
-  <a href="{% url 'donation_create' %}" class="btn btn-success">+ Donate a Book</a>
-</div>
+<div class="space-y-8">
+    <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="min-w-0">
+            <div class="mb-2 flex items-center gap-2">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-amber-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.16em] text-amber-600">Donations</span>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                My donation history<span class="text-indigo-500">.</span>
+            </h1>
+            <p class="mt-2 text-sm text-gray-500">Track the review status and remarks for books you have donated.</p>
+        </div>
+        <a href="{% url 'donation_create' %}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700">
+            <span>Donate a book</span>
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+            </svg>
+        </a>
+    </section>
 
-<table class="table table-striped align-middle">
-  <thead>
-    <tr>
-      <th>Title</th><th>Author</th><th>ISBN</th><th>Category</th>
-      <th>Condition</th><th>Qty</th><th>Submitted</th><th>Status</th><th>Remarks</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for d in donations %}
-      <tr>
-        <td>{{ d.title }}</td>
-        <td>{{ d.author }}</td>
-        <td>{{ d.isbn }}</td>
-        <td>{{ d.category }}</td>
-        <td>{{ d.get_condition_display }}</td>
-        <td>{{ d.quantity }}</td>
-        <td>{{ d.submitted_on|date:"Y-m-d" }}</td>
-        <td>
-          {% if d.status == "approved" %}<span class="badge bg-success">Approved</span>
-          {% elif d.status == "rejected" %}<span class="badge bg-danger">Rejected</span>
-          {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
-        </td>
-        <td>{{ d.remarks|default:"—" }}</td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="9" class="text-center text-muted">You haven't donated any books yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-gray-900">Donated books</h2>
+                    <p class="text-xs text-gray-500">All book donation submissions associated with your account.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[920px] text-left">
+                <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/70">
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Title</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Author</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">ISBN</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Category</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Condition</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Qty</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Submitted</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for d in donations %}
+                        <tr class="transition hover:bg-gray-50/70">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-500">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                                        </svg>
+                                    </div>
+                                    <span class="truncate text-sm font-semibold text-gray-800">{{ d.title }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ d.author }}</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-500">{{ d.isbn }}</td>
+                            <td class="px-6 py-4">
+                                <span class="rounded-lg bg-sky-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-sky-600">{{ d.category }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ d.get_condition_display }}</td>
+                            <td class="px-6 py-4">
+                                {% if d.quantity %}
+                                    <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{{ d.quantity }}</span>
+                                {% else %}
+                                    <span class="text-sm font-medium text-gray-400">0</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-500">{{ d.submitted_on|date:"Y-m-d" }}</td>
+                            <td class="px-6 py-4">
+                                {% if d.status == "approved" %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Approved
+                                    </span>
+                                {% elif d.status == "rejected" %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1.5 text-[11px] font-bold text-red-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>Rejected
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] font-bold text-amber-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-500">
+                                {% if d.remarks %}
+                                    {{ d.remarks }}
+                                {% else %}
+                                    <span class="text-gray-300">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="px-6 py-16 text-center">
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                                    <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                                    </svg>
+                                </div>
+                                <h3 class="mt-4 text-sm font-bold text-gray-700">No donations yet</h3>
+                                <p class="mt-1 text-xs text-gray-500">You haven't donated any books yet.</p>
+                                <a href="{% url 'donation_create' %}" class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800">
+                                    Donate a book <span>→</span>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 {% endblock %}

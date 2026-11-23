@@ -1,37 +1,208 @@
 {% extends "base.html" %}
 {% block title %}My Loans{% endblock %}
-{% block content %}
-<h3>My Loans</h3>
 
-{% if not member %}
-  <div class="alert alert-warning">Your account isn't linked to a member record.</div>
-{% else %}
-<table class="table table-striped align-middle">
-  <thead>
-    <tr><th>Book</th><th>Issued</th><th>Due</th><th>Returned</th><th>Fine</th></tr>
-  </thead>
-  <tbody>
-    {% for i in issues %}
-      <tr>
-        <td>{{ i.book.title }}</td>
-        <td>{{ i.issue_date }}</td>
-        <td>
-          {{ i.due_date }}
-          {% if not i.is_returned and i.due_date < today %}<span class="badge bg-danger">Overdue</span>{% endif %}
-        </td>
-        <td>{% if i.is_returned %}{{ i.return_date }}{% else %}—{% endif %}</td>
-        <td>
-          {% if i.is_returned %}
-            {{ i.fine_amount }}{% if i.fine_amount > 0 and not i.fine_paid %} (unpaid){% endif %}
-          {% else %}
-            {{ i.calculate_fine }}
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="5" class="text-center text-muted">You haven't borrowed any books yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div>
+        <p class="text-sm font-medium text-indigo-600 mb-1">Personal Library</p>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">My Loans</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Track your borrowed books, due dates, returns, and fines.
+        </p>
+    </div>
+
+    {% if not member %}
+
+    <!-- Member Not Linked -->
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v4m0 4h.01M10.3 3.9 2.8 17a2 2 0 0 0 1.74 3h14.92a2 2 0 0 0 1.74-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="text-sm font-semibold text-amber-900">Member account not linked</h3>
+            <p class="text-sm text-amber-800 mt-1">
+                Your account isn't linked to a member record. Please contact the librarian
+                to link your account so you can view your loan history.
+            </p>
+        </div>
+    </div>
+
+    {% else %}
+
+    <!-- Loan History Card -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
+        <!-- Card Header -->
+        <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row
+                    sm:items-center sm:justify-between gap-3">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">Borrowing History</h2>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Your borrowed books and their current status
+                </p>
+            </div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+                </svg>
+                <span class="text-xs font-semibold">Loan Records</span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/80">
+                    <tr>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Book
+                        </th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Issued Date
+                        </th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Due Date
+                        </th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Return Date
+                        </th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Fine
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+                    {% for i in issues %}
+                    <tr class="hover:bg-gray-50/70 transition-colors">
+
+                        <!-- Book -->
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5 text-indigo-500" fill="none"
+                                         stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                                              d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+                                    </svg>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ i.book.title }}
+                                </p>
+                            </div>
+                        </td>
+
+                        <!-- Issued -->
+                        <td class="px-5 py-4 text-sm text-gray-600 whitespace-nowrap">
+                            {{ i.issue_date }}
+                        </td>
+
+                        <!-- Due -->
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-sm text-gray-700">{{ i.due_date }}</span>
+                                {% if not i.is_returned and i.due_date < today %}
+                                <span class="inline-flex w-fit items-center gap-1 px-2 py-0.5 rounded-md
+                                             bg-rose-50 text-rose-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    Overdue
+                                </span>
+                                {% elif not i.is_returned %}
+                                <span class="inline-flex w-fit items-center gap-1 px-2 py-0.5 rounded-md
+                                             bg-amber-50 text-amber-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                    Active
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Returned -->
+                        <td class="px-5 py-4 text-sm text-gray-600 whitespace-nowrap">
+                            {% if i.is_returned %}
+                                <div class="flex items-center gap-1.5 text-emerald-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                    {{ i.return_date }}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400">Not returned</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Fine -->
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            {% if i.is_returned %}
+                                {% if i.fine_amount > 0 %}
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-sm font-semibold {% if not i.fine_paid %}text-rose-600{% else %}text-gray-900{% endif %}">
+                                            {{ i.fine_amount }}
+                                        </span>
+                                        {% if not i.fine_paid %}
+                                        <span class="inline-flex w-fit items-center px-2 py-0.5 rounded-md
+                                                     bg-rose-50 text-rose-700 text-xs font-medium">
+                                            Unpaid
+                                        </span>
+                                        {% else %}
+                                        <span class="inline-flex w-fit items-center px-2 py-0.5 rounded-md
+                                                     bg-emerald-50 text-emerald-700 text-xs font-medium">
+                                            Paid
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-sm font-medium text-emerald-600">No fine</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-sm font-medium text-gray-700">{{ i.calculate_fine }}</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-16 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+                                    <svg class="w-7 h-7 text-gray-400" fill="none"
+                                         stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+                                              d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+                                    </svg>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700">No loan records yet</p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Books you borrow will appear here.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3.5 border-t border-gray-100 bg-gray-50/50">
+            <p class="text-xs text-gray-500">
+                Showing your borrowing records. Contact the librarian if you notice any discrepancies.
+            </p>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
 {% endblock %}

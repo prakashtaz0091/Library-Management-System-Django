@@ -1,18 +1,84 @@
 {% extends "base.html" %}
-{% block title %}Reports{% endblock %}
+{% block title %}Reports | Library{% endblock %}
 {% block content %}
-<h3 class="mb-3">Reports</h3>
-<div class="row g-3">
-  {% for key, r in reports.items %}
-    <div class="col-md-6 col-lg-4">
-      <div class="card h-100">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ r.title }}</h5>
-          <p class="card-text text-muted">{{ r.description }}</p>
-          <a href="{% url 'report_view' key %}" class="btn btn-primary mt-auto">Open</a>
+<div class="space-y-8">
+    <section class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="min-w-0">
+            <div class="mb-2 flex items-center gap-2">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-gray-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.16em] text-gray-600">Reports</span>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Reports<span class="text-indigo-500">.</span>
+            </h1>
+            <p class="mt-2 text-sm text-gray-500">Browse available library reports and export data for analysis.</p>
         </div>
-      </div>
-    </div>
-  {% endfor %}
+    </section>
+
+    <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 3v18h18" />
+                        <path d="m19 9-5 5-4-4-3 3" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-gray-900">Available reports</h2>
+                    <p class="text-xs text-gray-500">Select a report to view metrics, filters, and CSV export.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 sm:p-6">
+            {% if reports %}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {% for key, r in reports.items %}
+                        <a href="{% url 'report_view' key %}" class="group flex flex-col justify-between rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg hover:shadow-gray-200/60">
+                            <div>
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-600 transition group-hover:bg-gray-900 group-hover:text-white">
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                            <path d="M14 2v6h6" />
+                                            <path d="M8 13h8" />
+                                            <path d="M8 17h8" />
+                                        </svg>
+                                    </div>
+                                    <span class="rounded-lg bg-gray-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-600">Report</span>
+                                </div>
+                                <h3 class="mt-4 text-base font-bold text-gray-900 transition group-hover:text-indigo-600">
+                                    {{ r.title }}
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    {{ r.description }}
+                                </p>
+                            </div>
+
+                            <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 text-xs font-bold text-gray-700 transition group-hover:text-indigo-600">
+                                <span>Open report</span>
+                                <svg class="h-4 w-4 text-gray-400 transition group-hover:translate-x-1 group-hover:text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M5 12h14" />
+                                    <path d="m12 5 7 7-7 7" />
+                                </svg>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="py-12 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 3v18h18" />
+                            <path d="m19 9-5 5-4-4-3 3" />
+                        </svg>
+                    </div>
+                    <h3 class="mt-4 text-sm font-bold text-gray-700">No reports available yet</h3>
+                    <p class="mt-1 text-xs text-gray-500">Configured reports will appear here once available.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
 </div>
 {% endblock %}
